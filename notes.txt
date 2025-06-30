@@ -1,0 +1,5 @@
+Better documentation at 
+https://pyinaturalist.readthedocs.io/
+
+Useing Client:
+https://pyinaturalist.readthedocs.io/en/stable/user_guide/client.html#pagination
