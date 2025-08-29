@@ -4,8 +4,8 @@ from pprint import pprint
 from pyinaturalist import iNatClient
 
 client = iNatClient()
-user_id='jbest'
-#user_id = 'luca_dt'
+#user_id='jbest'
+user_id = 'luca_dt'
 
 
 observations = client.observations.search(user_id=user_id).all()
