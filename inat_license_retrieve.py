@@ -9,9 +9,8 @@ user_id='jbest'
 filename = 'inat_' + user_id + '_photos.csv'
 
 
-print(f'Retrieving observation records for {user_id}...')
+print(f'Retrieving public observation records for {user_id}...')
 observations = client.observations.search(user_id=user_id).all()
-#observations = get_observations(user_id=user_id)
 
 print(f'Total public observations by {user_id}, {len(observations)}')
 with open(filename, 'w', newline='') as csvfile:
