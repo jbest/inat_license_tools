@@ -1,16 +1,23 @@
+import argparse
 import csv
 import json
 
 import pyinaturalist
 import requests
 
-#client = iNatClient()
-#filename = 'inat_' + user_id + '_photos.csv'
 CC_LICENSES = ['CC-BY', 'CC-BY-NC', 'CC-BY-ND', 'CC-BY-SA', 'CC-BY-NC-ND', 'CC-BY-NC-SA', 'CC0']
 ALL_LICENSES = CC_LICENSES + ['ALL RIGHTS RESERVED']
 
-verbose_temp = False
-#observations = client.observations.search(user_id=user_id).all()
+def arg_setup():
+    # set up argument parser
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-i", "--input_path", required=False, \
+        help="Input path of iNat CSV with new license codes in column named observation.photo.license_code_new")
+    ap.add_argument("-v", "--verbose", action="store_true", \
+        help="Detailed output.")
+    args = vars(ap.parse_args())
+    return args
+
 
 def validated_token():
     # Open the iNaturalist API token JSON file
@@ -38,7 +45,6 @@ def validate_license(license):
         return False
 
 def update_photo_license(photo_id=None, new_license=None):
-        #https://stackoverflow.com/a/47637783
         inat_api_photo_url = f'https://api.inaturalist.org/v2/photos/{photo_id}'
         head = {'Authorization': 'token {}'.format(api_token)}
         data_dict = {'photo': {'license_code': new_license}}
@@ -46,6 +52,10 @@ def update_photo_license(photo_id=None, new_license=None):
         return response
 
 if __name__ == '__main__':
+    args = arg_setup()
+    input_path = args['input_path']
+    verbose = args['verbose']
+
     api_token = validated_token()
     if api_token:
         # open CSV to find photo records to update
@@ -57,7 +67,7 @@ if __name__ == '__main__':
                 new_license = row['observation.photo.license_code_new']
 
                 if row['observation.photo.license_code_new'] == row['observation.photo.license_code']:
-                    if verbose_temp:
+                    if verbose:
                         print(f'Observation {row['observation.id']}, photo.id {row['observation.photo.id']}, new and current license are both {current_license}, no change.')
                 else:
                     new_license_valid = validate_license(new_license)
@@ -65,9 +75,8 @@ if __name__ == '__main__':
                         print(f'Photo.id: {row['observation.photo.id']} Current: {current_license} > New: {new_license}')
                         # update license
                         response = update_photo_license(photo_id=photo_id, new_license=new_license)
-                        print(response.text)
-                        #pyinaturalist.v1.observations.update_observation(obs_id, access_token=api_token, license_code = new_license_code)
-
+                        if verbose:
+                            print(response.text)
                     else:
                         print(f'Photo.id: {row['observation.photo.id']} New license string "{new_license}" is not a valid license option, skipping.')
 
