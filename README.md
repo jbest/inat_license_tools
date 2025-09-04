@@ -17,7 +17,15 @@ Retrieve photo records for your iNat user:
 
 Edit generated CSV (or a copy of the file) to add column named "observation.photo.license_code_new" for new license codes
 
-Populate column with desired code for each photo and save changes
+Populate column with desired code for each photo and save changes. Valid codes are:
+
+- CC-BY
+- CC-BY-NC
+- CC-BY-ND
+- CC-BY-SA
+- CC-BY-NC-ND
+- CC-BY-NC-SA
+- CC0
 
 Update license codes by running:
 
