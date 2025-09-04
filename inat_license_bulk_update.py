@@ -57,8 +57,8 @@ if __name__ == '__main__':
     verbose = args['verbose']
 
     api_token = validated_token()
+    photo_update_count = 0
     if api_token:
-        photo_update_count = 0
         # open CSV to find photo records to update
         with open(input_path, newline='') as csvfile:
             reader = csv.DictReader(csvfile)
@@ -81,5 +81,8 @@ if __name__ == '__main__':
                             print(response.text)
                     else:
                         print(f'Photo.id: {row['observation.photo.id']} New license string "{new_license}" is not a valid license option, skipping.')
-        print(f'Process complete, {photo_update_count} photo licneses updated.')
+    else:
+        print('No records processed due to invalid token.')
+    
+    print(f'Process complete, {photo_update_count} photo licenses updated.')
 
