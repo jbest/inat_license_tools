@@ -1,13 +1,25 @@
+import argparse
 import csv
 from pprint import pprint
 
 from pyinaturalist import iNatClient
 
-client = iNatClient()
-user_id='jbest'
-#user_id = 'luca_dt'
-filename = 'inat_' + user_id + '_photos.csv'
+def arg_setup():
+    # set up argument parser
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-u", "--user_id", required=True, \
+        help="The iNaturalist user id for photo records to be retrieved.")
+    ap.add_argument("-v", "--verbose", action="store_true", \
+        help="Detailed output.")
+    args = vars(ap.parse_args())
+    return args
 
+args = arg_setup()
+user_id = args['user_id']
+
+client = iNatClient()
+
+filename = 'inat_' + user_id + '_photos.csv'
 
 print(f'Retrieving public observation records for {user_id}...')
 observations = client.observations.search(user_id=user_id).all()
