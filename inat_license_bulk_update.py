@@ -11,7 +11,7 @@ ALL_LICENSES = CC_LICENSES + ['ALL RIGHTS RESERVED']
 def arg_setup():
     # set up argument parser
     ap = argparse.ArgumentParser()
-    ap.add_argument("-i", "--input_path", required=False, \
+    ap.add_argument("-i", "--input_path", required=True, \
         help="Input path of iNat CSV with new license codes in column named observation.photo.license_code_new")
     ap.add_argument("-v", "--verbose", action="store_true", \
         help="Detailed output.")
@@ -58,8 +58,9 @@ if __name__ == '__main__':
 
     api_token = validated_token()
     if api_token:
+        photo_update_count = 0
         # open CSV to find photo records to update
-        with open('inat_jbest_photos_updates.csv', newline='') as csvfile:
+        with open(input_path, newline='') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
                 photo_id = row['observation.photo.id']
@@ -75,8 +76,10 @@ if __name__ == '__main__':
                         print(f'Photo.id: {row['observation.photo.id']} Current: {current_license} > New: {new_license}')
                         # update license
                         response = update_photo_license(photo_id=photo_id, new_license=new_license)
+                        photo_update_count += 1
                         if verbose:
                             print(response.text)
                     else:
                         print(f'Photo.id: {row['observation.photo.id']} New license string "{new_license}" is not a valid license option, skipping.')
+        print(f'Process complete, {photo_update_count} photo licneses updated.')
 
