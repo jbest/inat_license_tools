@@ -2,6 +2,7 @@ import csv
 import json
 
 import pyinaturalist
+import requests
 
 #client = iNatClient()
 #filename = 'inat_' + user_id + '_photos.csv'
@@ -9,7 +10,6 @@ CC_LICENSES = ['CC-BY', 'CC-BY-NC', 'CC-BY-ND', 'CC-BY-SA', 'CC-BY-NC-ND', 'CC-B
 ALL_LICENSES = CC_LICENSES + ['ALL RIGHTS RESERVED']
 
 verbose_temp = False
-print(f'pfft')
 #observations = client.observations.search(user_id=user_id).all()
 
 def validated_token():
@@ -37,6 +37,14 @@ def validate_license(license):
     else:
         return False
 
+def update_photo_license(photo_id=None, new_license=None):
+        #https://stackoverflow.com/a/47637783
+        inat_api_photo_url = f'https://api.inaturalist.org/v2/photos/{photo_id}'
+        head = {'Authorization': 'token {}'.format(api_token)}
+        data_dict = {'photo': {'license_code': new_license}}
+        response = requests.put(inat_api_photo_url, headers=head, data=json.dumps(data_dict))
+        return response
+
 if __name__ == '__main__':
     api_token = validated_token()
     if api_token:
@@ -44,6 +52,7 @@ if __name__ == '__main__':
         with open('inat_jbest_photos_updates.csv', newline='') as csvfile:
             reader = csv.DictReader(csvfile)
             for row in reader:
+                photo_id = row['observation.photo.id']
                 current_license = row['observation.photo.license_code']
                 new_license = row['observation.photo.license_code_new']
 
@@ -51,9 +60,14 @@ if __name__ == '__main__':
                     if verbose_temp:
                         print(f'Observation {row['observation.id']}, photo.id {row['observation.photo.id']}, new and current license are both {current_license}, no change.')
                 else:
-                    new_valid_license = validate_license(new_license)
-                    if new_valid_license:
+                    new_license_valid = validate_license(new_license)
+                    if new_license_valid:
                         print(f'Photo.id: {row['observation.photo.id']} Current: {current_license} > New: {new_license}')
-                        #print(row['observation.photo.id'], row['observation.photo.license_code'])
+                        # update license
+                        response = update_photo_license(photo_id=photo_id, new_license=new_license)
+                        print(response.text)
+                        #pyinaturalist.v1.observations.update_observation(obs_id, access_token=api_token, license_code = new_license_code)
+
                     else:
                         print(f'Photo.id: {row['observation.photo.id']} New license string "{new_license}" is not a valid license option, skipping.')
+

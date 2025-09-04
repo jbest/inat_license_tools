@@ -35,11 +35,12 @@ if __name__ == '__main__':
 
         #https://stackoverflow.com/a/47637783
         #myToken = '<token>'
-        myUrl = 'https://api.inaturalist.org/v2/photos/520387861'
+        #myUrl = 'https://api.inaturalist.org/v2/photos/520387861'
+        inat_api_url = f'https://api.inaturalist.org/v2/photos/{photo_id}'
         head = {'Authorization': 'token {}'.format(api_token)}
         #data_test = '{ "license_code": "CC-BY-NC" }'
-        data_dict = {'photo': {'license_code': 'CC-BY'}}
+        data_dict = {'photo': {'license_code': 'CC-BY-SA'}}
         #data_dict = {'license': 'CC-BY'}
 
-        response = requests.put(myUrl, headers=head, data=json.dumps(data_dict))
+        response = requests.put(inat_api_url, headers=head, data=json.dumps(data_dict))
         print(response.text)
