@@ -21,22 +21,30 @@ def arg_setup():
 
 def validated_token():
     # Open the iNaturalist API token JSON file
-    with open('api_token.json', 'r') as file:
-        data = json.load(file)
+    try:
+        with open('api_token.json', 'r') as file:
+            data = json.load(file)
 
-    api_token = data['api_token']
-    api_token_truncated = api_token[:10] + '*****' + api_token[-10:]
-    print('Validating iNaturalist API token:', api_token_truncated)
-    token_valid = pyinaturalist.auth.validate_token(api_token)
-    if token_valid:
-        print('SUCCESS: iNat token', api_token_truncated, 'is valid.')
-        return api_token
-    else:
-        print('FAIL: iNat token', api_token_truncated, 'is NOT valid.')
+        api_token = data['api_token']
+        api_token_truncated = api_token[:10] + '*****' + api_token[-10:]
+        print('Validating iNaturalist API token:', api_token_truncated)
+        token_valid = pyinaturalist.auth.validate_token(api_token)
+        if token_valid:
+            print('SUCCESS: iNat token', api_token_truncated, 'is valid.')
+            return api_token
+        else:
+            print('FAIL: iNat token', api_token_truncated, 'is NOT valid.')
+            print('Generate new token by logging in to iNaturalist.org, then')
+            print('go to https://www.inaturalist.org/users/api_token then')
+            print('save the resulting JSON to api_token.json in the directory containing this script.')
+            return None
+    except FileNotFoundError as e:
+        print('iNat API token file not found.', e)
+        print('-'*80)
         print('Generate new token by logging in to iNaturalist.org, then')
         print('go to https://www.inaturalist.org/users/api_token then')
         print('save the resulting JSON to api_token.json in the directory containing this script.')
-        return None
+        print('-'*80)
 
 def validate_license(license):
     if license in ALL_LICENSES:
@@ -82,7 +90,7 @@ if __name__ == '__main__':
                     else:
                         print(f'Photo.id: {row['observation.photo.id']} New license string "{new_license}" is not a valid license option, skipping.')
     else:
-        print('No records processed due to invalid token.')
+        print('No records processed due to invalid or missing token.')
     
     print(f'Process complete, {photo_update_count} photo licenses updated.')
 
